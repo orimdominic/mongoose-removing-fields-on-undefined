@@ -19,7 +19,7 @@ let res;
 try {
 	res = await User.updateOne(
 		{ _id: '63cb19035f29c5cf071095e3' },
-		{ name: undefined, password: undefined },
+		{ name: undefined, email: undefined },
 		{ new: true, fields: { _id: 0 } }
 	).then(
 		(updatedUser) => ({ updatedUser, errUpdateUser: undefined }),
