@@ -32,9 +32,7 @@ try {
 const { updatedUser, errUpdateUser } = res;
 
 if (updatedUser && updatedUser.ok) {
-	console.log('res.ok');
-	console.log(updatedUser);
+	console.log('res.ok: ', updatedUser);
 } else {
 	console.log('update not ok: ', errUpdateUser);
-	console.log(errUpdateUser);
 }
