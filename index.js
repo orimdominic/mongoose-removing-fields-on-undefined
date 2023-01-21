@@ -19,8 +19,7 @@ let res;
 try {
 	res = await User.updateOne(
 		{ _id: '63cb19035f29c5cf071095e3' },
-		{ name: undefined, email: undefined },
-		{ new: true, fields: { _id: 0 } }
+		{ name: undefined, email: undefined }
 	).then(
 		(updatedUser) => ({ updatedUser, errUpdateUser: undefined }),
 		(errUpdateUser) => ({ errUpdateUser, updatedUser: undefined })
@@ -29,10 +28,17 @@ try {
 	console.log(err);
 }
 
-const { updatedUser, errUpdateUser } = res;
-
-if (updatedUser && updatedUser.ok) {
-	console.log('res.ok: ', updatedUser);
+if (!res) {
+	console.log('res is undefined');
 } else {
-	console.log('update not ok: ', errUpdateUser);
+	const { updatedUser, errUpdateUser } = res;
+
+	if (!updatedUser) {
+		console.log('empty update res');
+		if (errUpdateUser) {
+			console.log('errUpdateUser: ', errUpdateUser);
+		}
+	} else if (updatedUser.acknowledged) {
+		console.log('acknowledged: ', updatedUser);
+	}
 }
