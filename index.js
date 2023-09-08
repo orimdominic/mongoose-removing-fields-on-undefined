@@ -1,44 +1,57 @@
-import mongoose from 'mongoose';
+import assert from "node:assert/strict";
+import mongoose from "mongoose";
 
 try {
-	await mongoose.connect('mongodb://localhost:27017', { dbName: 'test' });
+  await mongoose.connect("mongodb://localhost:27017", { dbName: "test" });
 } catch (err) {
-	console.log(err);
+  console.log(err);
 }
 
-mongoose.set('runValidators', true);
+mongoose.set("runValidators", true);
 
 const userSchema = new mongoose.Schema({
-	name: { type: String, required: true },
-	email: { type: String, required: true },
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  family: {
+    isMarried: {
+      type: Boolean,
+    },
+    hasKids: {
+      type: Boolean,
+    },
+  },
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
-let res;
-try {
-	res = await User.updateOne(
-		{ _id: '63cb19035f29c5cf071095e3' },
-		{ name: undefined, email: undefined }
-	).then(
-		(updatedUser) => ({ updatedUser, errUpdateUser: undefined }),
-		(errUpdateUser) => ({ errUpdateUser, updatedUser: undefined })
-	);
-} catch (err) {
-	console.log(err);
+async function run() {
+  const newUser = await User.create({
+    name: "Jake",
+    email: "jake@mail.com",
+    family: {
+      isMarried: true,
+      hasKids: true,
+    },
+  });
+
+  const updatedUser = await User.findByIdAndUpdate(
+    newUser._id,
+    {
+      name: "John",
+      email: undefined,
+      family: {
+        isMarried: false,
+        hasKids: undefined,
+      },
+    },
+    { new: true }
+  );
+
+  assert.equal(updatedUser.name, "John");
+  assert.equal(updatedUser.email, "jake@mail.com");
+  assert.equal(updatedUser.family.isMarried, false);
+  assert.equal(updatedUser.family.hasKids, undefined); // does not fail
+  assert.equal(updatedUser.family.hasKids, true); / // fails
 }
 
-if (!res) {
-	console.log('res is undefined');
-} else {
-	const { updatedUser, errUpdateUser } = res;
-
-	if (!updatedUser) {
-		console.log('empty update res');
-		if (errUpdateUser) {
-			console.log('errUpdateUser: ', errUpdateUser);
-		}
-	} else if (updatedUser.acknowledged) {
-		console.log('acknowledged: ', updatedUser);
-	}
-}
+run();
